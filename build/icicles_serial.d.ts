@@ -4,7 +4,13 @@ export declare class IciclesPort {
     readonly portName: string;
     protected readonly parser: SerialPort.parsers.Readline;
     protected readonly port: SerialPort;
-    constructor(portName: string, baudRate?: number);
+    protected readonly onData?: (chunk: any) => void;
+    static readonly defaultBaudRate = 921600;
+    constructor(portName: string, { onData, baudRate, }?: {
+        onData?: (chunk: any) => void;
+        baudRate?: number;
+    });
+    protected _onData(chunk: any): void;
     getPingMessage(): Uint8Array;
     private _messagesToSend;
     get isSending(): boolean;

@@ -17,15 +17,23 @@ const serialport_1 = __importDefault(require("serialport"));
 const utils_1 = require("./utils");
 const serial_message_types_1 = require("./serial_message_types");
 class IciclesPort {
-    constructor(portName, baudRate = 921600) {
+    constructor(portName, { onData, baudRate = IciclesPort.defaultBaudRate, } = {}) {
         this.portName = portName;
         this._messagesToSend = 0;
         this._pingEvery = 10000;
+        this.onData = onData;
         // @ts-ignore
         this.parser = new serialport_1.default.parsers.Readline({
             encoding: "binary",
         });
-        this.port = new serialport_1.default(portName, { baudRate });
+        this.parser.on("data", this._onData);
+        this.port = new serialport_1.default(portName, {
+            baudRate: baudRate !== null && baudRate !== void 0 ? baudRate : IciclesPort.defaultBaudRate,
+        });
+    }
+    _onData(chunk) {
+        var _a;
+        (_a = this.onData) === null || _a === void 0 ? void 0 : _a.call(this, chunk);
     }
     getPingMessage() {
         const bytes = new Uint8Array(utils_1.UINT_8_SIZE_IN_BYTES);
@@ -128,3 +136,4 @@ class IciclesPort {
     }
 }
 exports.IciclesPort = IciclesPort;
+IciclesPort.defaultBaudRate = 921600;

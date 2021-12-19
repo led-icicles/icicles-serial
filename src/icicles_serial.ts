@@ -6,14 +6,28 @@ import { SerialMessageTypes } from "./serial_message_types";
 export class IciclesPort {
   protected readonly parser: SerialPort.parsers.Readline;
   protected readonly port: SerialPort;
-
-  constructor(public readonly portName: string, baudRate: number = 921600) {
+  protected readonly onData?: (chunk: any) => void;
+  public static readonly defaultBaudRate = 921600;
+  constructor(
+    public readonly portName: string,
+    {
+      onData,
+      baudRate = IciclesPort.defaultBaudRate,
+    }: { onData?: (chunk: any) => void; baudRate?: number } = {}
+  ) {
+    this.onData = onData;
     // @ts-ignore
     this.parser = new SerialPort.parsers.Readline({
       encoding: "binary",
     });
+    this.parser.on("data", this._onData);
+    this.port = new SerialPort(portName, {
+      baudRate: baudRate ?? IciclesPort.defaultBaudRate,
+    });
+  }
 
-    this.port = new SerialPort(portName, { baudRate });
+  protected _onData(chunk: any) {
+    this.onData?.(chunk);
   }
 
   public getPingMessage(): Uint8Array {
