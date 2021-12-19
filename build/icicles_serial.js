@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IciclesPort = void 0;
+exports.IciclesPort = exports.viewToSerial = void 0;
 const serialport_1 = __importDefault(require("serialport"));
 const utils_1 = require("./utils");
 const serial_message_types_1 = require("./serial_message_types");
@@ -55,6 +55,7 @@ const viewToSerial = (view) => {
     }
     return bytes;
 };
+exports.viewToSerial = viewToSerial;
 class IciclesPort {
     constructor(portName, baudRate = 921600) {
         this.portName = portName;
@@ -161,7 +162,7 @@ class IciclesPort {
     }
     display(view) {
         return __awaiter(this, void 0, void 0, function* () {
-            const bytes = viewToSerial(view);
+            const bytes = (0, exports.viewToSerial)(view);
             yield this.send(bytes);
         });
     }

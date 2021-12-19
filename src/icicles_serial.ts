@@ -3,7 +3,7 @@ import { AnimationView } from "icicles-animation";
 import { UINT_8_SIZE_IN_BYTES } from "./utils";
 import { SerialMessageTypes } from "./serial_message_types";
 
-const viewToSerial = (view: AnimationView): Uint8Array => {
+export const viewToSerial = (view: AnimationView): Uint8Array => {
   const getRadioPanelSize = () => {
     const panelIndexSize = UINT_8_SIZE_IN_BYTES;
     const color = UINT_8_SIZE_IN_BYTES * 3;
@@ -71,7 +71,7 @@ export class IciclesPort {
     return this._messagesToSend !== 0;
   }
 
-  protected async send(bytes: Uint8Array): Promise<void> {
+  public async send(bytes: Uint8Array): Promise<void> {
     this._messagesToSend++;
 
     // skip pings for [this._pingEvery] duration

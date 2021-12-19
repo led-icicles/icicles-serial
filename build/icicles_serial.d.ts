@@ -1,5 +1,6 @@
 import SerialPort from "serialport";
 import { AnimationView } from "icicles-animation";
+export declare const viewToSerial: (view: AnimationView) => Uint8Array;
 export declare class IciclesPort {
     readonly portName: string;
     protected readonly parser: SerialPort.parsers.Readline;
@@ -8,7 +9,7 @@ export declare class IciclesPort {
     getPingMessage(): Uint8Array;
     private _messagesToSend;
     get isSending(): boolean;
-    protected send(bytes: Uint8Array): Promise<void>;
+    send(bytes: Uint8Array): Promise<void>;
     private _pingTimeout?;
     private _pingInterval?;
     get pingsEnabled(): boolean;
