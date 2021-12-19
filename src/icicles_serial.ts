@@ -3,50 +3,6 @@ import { AnimationView } from "icicles-animation";
 import { UINT_8_SIZE_IN_BYTES } from "./utils";
 import { SerialMessageTypes } from "./serial_message_types";
 
-export const viewToSerial = (view: AnimationView): Uint8Array => {
-  const getRadioPanelSize = () => {
-    const panelIndexSize = UINT_8_SIZE_IN_BYTES;
-    const color = UINT_8_SIZE_IN_BYTES * 3;
-    return panelIndexSize + color;
-  };
-  const getFrameSize = () => {
-    const colorsSize = view.frame.pixels.length * 3;
-    // During serial communication frame duration and type is redundant;
-    return colorsSize;
-  };
-  const radioPanelSize = getRadioPanelSize();
-  const radioPanelsSize = radioPanelSize * view.radioPanels.length;
-  const frameSize = getFrameSize();
-  const messageTypeSize = UINT_8_SIZE_IN_BYTES;
-  const viewSize = messageTypeSize + frameSize + radioPanelsSize;
-
-  const bytes = new Uint8Array(viewSize);
-  let pointer = 0;
-
-  // Set message type
-  bytes[pointer++] = SerialMessageTypes.displayView;
-  /// frame pixels
-  const pixels = view.frame.pixels;
-  for (let i = 0; i < pixels.length; i++) {
-    bytes[pointer++] = pixels[i].red;
-    bytes[pointer++] = pixels[i].green;
-    bytes[pointer++] = pixels[i].blue;
-  }
-  /// encode radio panels
-  for (let i = 0; i < view.radioPanels.length; i++) {
-    const radioPanelView = view.radioPanels[i];
-
-    /// panel index
-    bytes[pointer++] = radioPanelView.index;
-    /// color
-    bytes[pointer++] = radioPanelView.color.red;
-    bytes[pointer++] = radioPanelView.color.green;
-    bytes[pointer++] = radioPanelView.color.blue;
-  }
-
-  return bytes;
-};
-
 export class IciclesPort {
   protected readonly parser: SerialPort.parsers.Readline;
   protected readonly port: SerialPort;
@@ -171,7 +127,7 @@ export class IciclesPort {
   }
 
   public async display(view: AnimationView): Promise<void> {
-    const bytes = viewToSerial(view);
+    const bytes = view.toBytes();
     await this.send(bytes);
   }
 }

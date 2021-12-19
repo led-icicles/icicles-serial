@@ -12,50 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IciclesPort = exports.viewToSerial = void 0;
+exports.IciclesPort = void 0;
 const serialport_1 = __importDefault(require("serialport"));
 const utils_1 = require("./utils");
 const serial_message_types_1 = require("./serial_message_types");
-const viewToSerial = (view) => {
-    const getRadioPanelSize = () => {
-        const panelIndexSize = utils_1.UINT_8_SIZE_IN_BYTES;
-        const color = utils_1.UINT_8_SIZE_IN_BYTES * 3;
-        return panelIndexSize + color;
-    };
-    const getFrameSize = () => {
-        const colorsSize = view.frame.pixels.length * 3;
-        // During serial communication frame duration and type is redundant;
-        return colorsSize;
-    };
-    const radioPanelSize = getRadioPanelSize();
-    const radioPanelsSize = radioPanelSize * view.radioPanels.length;
-    const frameSize = getFrameSize();
-    const messageTypeSize = utils_1.UINT_8_SIZE_IN_BYTES;
-    const viewSize = messageTypeSize + frameSize + radioPanelsSize;
-    const bytes = new Uint8Array(viewSize);
-    let pointer = 0;
-    // Set message type
-    bytes[pointer++] = serial_message_types_1.SerialMessageTypes.displayView;
-    /// frame pixels
-    const pixels = view.frame.pixels;
-    for (let i = 0; i < pixels.length; i++) {
-        bytes[pointer++] = pixels[i].red;
-        bytes[pointer++] = pixels[i].green;
-        bytes[pointer++] = pixels[i].blue;
-    }
-    /// encode radio panels
-    for (let i = 0; i < view.radioPanels.length; i++) {
-        const radioPanelView = view.radioPanels[i];
-        /// panel index
-        bytes[pointer++] = radioPanelView.index;
-        /// color
-        bytes[pointer++] = radioPanelView.color.red;
-        bytes[pointer++] = radioPanelView.color.green;
-        bytes[pointer++] = radioPanelView.color.blue;
-    }
-    return bytes;
-};
-exports.viewToSerial = viewToSerial;
 class IciclesPort {
     constructor(portName, baudRate = 921600) {
         this.portName = portName;
@@ -162,7 +122,7 @@ class IciclesPort {
     }
     display(view) {
         return __awaiter(this, void 0, void 0, function* () {
-            const bytes = (0, exports.viewToSerial)(view);
+            const bytes = view.toBytes();
             yield this.send(bytes);
         });
     }

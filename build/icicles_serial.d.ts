@@ -1,6 +1,5 @@
 import SerialPort from "serialport";
 import { AnimationView } from "icicles-animation";
-export declare const viewToSerial: (view: AnimationView) => Uint8Array;
 export declare class IciclesPort {
     readonly portName: string;
     protected readonly parser: SerialPort.parsers.Readline;
