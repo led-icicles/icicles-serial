@@ -26,15 +26,9 @@ export class IciclesPort {
     });
   }
 
-  protected _onData(chunk: any) {
+  protected _onData = (chunk: any) => {
     this.onData?.(chunk);
-  }
-
-  public getPingMessage(): Uint8Array {
-    const bytes = new Uint8Array(UINT_8_SIZE_IN_BYTES);
-    bytes[0] = SerialMessageTypes.ping;
-    return bytes;
-  }
+  };
 
   private _messagesToSend = 0;
   public get isSending(): boolean {
@@ -70,78 +64,78 @@ export class IciclesPort {
   /**
    * This method is also used internally to skip ping requests when there is no needed for them.
    */
-  public async start({
+  public start = async ({
     pingEvery = 10_000,
   }: {
     pingEvery?: number;
-  } = {}): Promise<void> {
+  } = {}): Promise<void> => {
     if (typeof pingEvery === "number") {
       this._pingEvery = pingEvery;
     }
     this._reschedulePings(this._pingEvery);
     this.sendPing();
-  }
+  };
 
-  private _reschedulePings(pingEvery: number) {
+  private _reschedulePings = (pingEvery: number) => {
     this._clearPings();
     this._pingInterval = setInterval(
       () => this._schedulePing(pingEvery),
       pingEvery
     );
-  }
+  };
 
-  private _clearPings(): void {
+  private _clearPings = (): void => {
     this._clearPingTimer();
     this._clearScheduledPing();
-  }
+  };
 
-  public async stop(): Promise<void> {
+  public stop = async (): Promise<void> => {
     this._clearPings();
     await this.sendEnd();
-  }
+  };
 
-  protected async sendPing(): Promise<void> {
+  protected sendPing = async (): Promise<void> => {
     const messageTypeSize = UINT_8_SIZE_IN_BYTES;
     const bytes = new Uint8Array(messageTypeSize);
     bytes[0] = SerialMessageTypes.ping;
 
     await this.send(bytes);
-  }
+  };
 
-  protected async sendEnd(): Promise<void> {
+  protected sendEnd = async (): Promise<void> => {
     const messageTypeSize = UINT_8_SIZE_IN_BYTES;
     const bytes = new Uint8Array(messageTypeSize);
     bytes[0] = SerialMessageTypes.end;
 
     await this.send(bytes);
-  }
+  };
 
   /**
    * Clears ping if ping is scheduled
    */
-  private _clearScheduledPing(): void {
+  private _clearScheduledPing = (): void => {
     if (this._pingTimeout !== undefined) {
       clearTimeout(this._pingTimeout);
       this._pingTimeout = undefined;
     }
-  }
+  };
 
   /**
    * Clear current scheduled ping request and schedule new one.
    */
-  private _schedulePing(delay: number = 10_000): void {
+  private _schedulePing = (delay: number = 10_000): void => {
     this._pingTimeout = setTimeout(this.sendPing, delay);
-  }
+  };
 
-  private _clearPingTimer(): void {
+  private _clearPingTimer = (): void => {
     if (this._pingInterval) {
       clearInterval(this._pingInterval);
       this._pingInterval = undefined;
     }
-  }
+  };
 
-  public async display(view: AnimationView): Promise<void> {
+  public display = async (view: AnimationView): Promise<void> => {
     const bytes = view.toBytes();
     await this.send(bytes);
-  }
+  };
 }

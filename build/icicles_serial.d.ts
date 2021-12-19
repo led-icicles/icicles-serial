@@ -10,8 +10,7 @@ export declare class IciclesPort {
         onData?: (chunk: any) => void;
         baudRate?: number;
     });
-    protected _onData(chunk: any): void;
-    getPingMessage(): Uint8Array;
+    protected _onData: (chunk: any) => void;
     private _messagesToSend;
     get isSending(): boolean;
     send: (bytes: Uint8Array) => Promise<void>;
@@ -22,14 +21,14 @@ export declare class IciclesPort {
     /**
      * This method is also used internally to skip ping requests when there is no needed for them.
      */
-    start({ pingEvery, }?: {
-        pingEvery?: number;
-    }): Promise<void>;
+    start: ({ pingEvery, }?: {
+        pingEvery?: number | undefined;
+    }) => Promise<void>;
     private _reschedulePings;
     private _clearPings;
-    stop(): Promise<void>;
-    protected sendPing(): Promise<void>;
-    protected sendEnd(): Promise<void>;
+    stop: () => Promise<void>;
+    protected sendPing: () => Promise<void>;
+    protected sendEnd: () => Promise<void>;
     /**
      * Clears ping if ping is scheduled
      */
@@ -39,5 +38,5 @@ export declare class IciclesPort {
      */
     private _schedulePing;
     private _clearPingTimer;
-    display(view: AnimationView): Promise<void>;
+    display: (view: AnimationView) => Promise<void>;
 }
