@@ -14,7 +14,7 @@ export declare class IciclesPort {
     getPingMessage(): Uint8Array;
     private _messagesToSend;
     get isSending(): boolean;
-    send(bytes: Uint8Array): Promise<void>;
+    send: (bytes: Uint8Array) => Promise<void>;
     private _pingTimeout?;
     private _pingInterval?;
     get pingsEnabled(): boolean;

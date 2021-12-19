@@ -41,7 +41,7 @@ export class IciclesPort {
     return this._messagesToSend !== 0;
   }
 
-  public async send(bytes: Uint8Array): Promise<void> {
+  public send = async (bytes: Uint8Array): Promise<void> => {
     this._messagesToSend++;
 
     // skip pings for [this._pingEvery] duration
@@ -57,7 +57,7 @@ export class IciclesPort {
         }
       });
     });
-  }
+  };
 
   private _pingTimeout?: NodeJS.Timeout;
   private _pingInterval?: NodeJS.Timer;

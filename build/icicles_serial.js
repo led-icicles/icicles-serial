@@ -20,6 +20,23 @@ class IciclesPort {
     constructor(portName, { onData, baudRate = IciclesPort.defaultBaudRate, } = {}) {
         this.portName = portName;
         this._messagesToSend = 0;
+        this.send = (bytes) => __awaiter(this, void 0, void 0, function* () {
+            this._messagesToSend++;
+            // skip pings for [this._pingEvery] duration
+            this._reschedulePings(this._pingEvery);
+            const buffer = Buffer.from(bytes.buffer);
+            yield new Promise((res, rej) => {
+                this.port.write(buffer, (err, bytesWritten) => {
+                    this._messagesToSend--;
+                    if (err) {
+                        rej(err);
+                    }
+                    else {
+                        res(bytesWritten);
+                    }
+                });
+            });
+        });
         this._pingEvery = 10000;
         this.onData = onData;
         // @ts-ignore
@@ -42,25 +59,6 @@ class IciclesPort {
     }
     get isSending() {
         return this._messagesToSend !== 0;
-    }
-    send(bytes) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this._messagesToSend++;
-            // skip pings for [this._pingEvery] duration
-            this._reschedulePings(this._pingEvery);
-            const buffer = Buffer.from(bytes.buffer);
-            yield new Promise((res, rej) => {
-                this.port.write(buffer, (err, bytesWritten) => {
-                    this._messagesToSend--;
-                    if (err) {
-                        rej(err);
-                    }
-                    else {
-                        res(bytesWritten);
-                    }
-                });
-            });
-        });
     }
     get pingsEnabled() {
         return this._pingInterval !== undefined || this._pingTimeout !== undefined;
