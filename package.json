@@ -1,0 +1,36 @@
+{
+  "name": "icicles-serial",
+  "author": "Kamil",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.6",
+    "@types/prettier": "^2.4.1",
+    "@types/serialport": "^8.0.2",
+    "jest": "^27.3.1",
+    "prettier": "^2.4.1",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.4.4"
+  },
+  "jest": {
+    "preset": "ts-jest"
+  },
+  "dependencies": {
+    "serialport": "^9.2.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/led-icicles/icicles-serial.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/led-icicles/icicles-serial/issues"
+  },
+  "homepage": "https://github.com/led-icicles/icicles-serial#readme"
+}
