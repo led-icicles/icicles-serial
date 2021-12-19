@@ -110,6 +110,7 @@ class IciclesPort {
         this.port = new serialport_1.default(portName, {
             baudRate: baudRate !== null && baudRate !== void 0 ? baudRate : IciclesPort.defaultBaudRate,
         });
+        this.port.pipe(this.parser);
     }
     get isSending() {
         return this._messagesToSend !== 0;

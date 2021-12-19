@@ -16,6 +16,7 @@ export class IciclesPort {
     }: { onData?: (chunk: any) => void; baudRate?: number } = {}
   ) {
     this.onData = onData;
+
     // @ts-ignore
     this.parser = new SerialPort.parsers.Readline({
       encoding: "binary",
@@ -24,6 +25,7 @@ export class IciclesPort {
     this.port = new SerialPort(portName, {
       baudRate: baudRate ?? IciclesPort.defaultBaudRate,
     });
+    this.port.pipe(this.parser);
   }
 
   protected _onData = (chunk: any) => {
