@@ -63,6 +63,7 @@ class IciclesPort {
         this.stop = () => __awaiter(this, void 0, void 0, function* () {
             this._clearPings();
             yield this.sendEnd();
+            this._clearPings();
         });
         this.sendPing = () => __awaiter(this, void 0, void 0, function* () {
             const messageTypeSize = utils_1.UINT_8_SIZE_IN_BYTES;

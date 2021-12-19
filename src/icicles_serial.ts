@@ -94,6 +94,7 @@ export class IciclesPort {
   public stop = async (): Promise<void> => {
     this._clearPings();
     await this.sendEnd();
+    this._clearPings();
   };
 
   protected sendPing = async (): Promise<void> => {
