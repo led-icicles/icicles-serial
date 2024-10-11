@@ -37,11 +37,16 @@ export class IciclesPort {
     return this._messagesToSend !== 0;
   }
 
-  public send = async (bytes: Uint8Array): Promise<void> => {
+  public send = async (
+    bytes: Uint8Array,
+    { withPing = true }: { withPing?: boolean } = {}
+  ): Promise<void> => {
     this._messagesToSend++;
 
     // skip pings for [this._pingEvery] duration
-    this._reschedulePings(this._pingEvery);
+    if (withPing) {
+      this._reschedulePings(this._pingEvery);
+    }
     const buffer = Buffer.from(bytes.buffer);
     await new Promise((res, rej) => {
       this.port.write(buffer, (err, bytesWritten) => {
@@ -55,12 +60,12 @@ export class IciclesPort {
     });
   };
 
-  private _pingTimeout?: NodeJS.Timeout;
   private _pingInterval?: NodeJS.Timer;
   public get pingsEnabled(): boolean {
-    return this._pingInterval !== undefined || this._pingTimeout !== undefined;
+    return this._pingInterval !== undefined;
   }
 
+  /** Send ping every 10 second */
   private _pingEvery: number = 10_000;
 
   /**
@@ -80,15 +85,11 @@ export class IciclesPort {
 
   private _reschedulePings = (pingEvery: number) => {
     this._clearPings();
-    this._pingInterval = setInterval(
-      () => this._schedulePing(pingEvery),
-      pingEvery
-    );
+    this._pingInterval = setInterval(() => this.sendPing(), pingEvery);
   };
 
   private _clearPings = (): void => {
     this._clearPingTimer();
-    this._clearScheduledPing();
   };
 
   public stop = async (): Promise<void> => {
@@ -102,7 +103,7 @@ export class IciclesPort {
     const bytes = new Uint8Array(messageTypeSize);
     bytes[0] = SerialMessageTypes.ping;
 
-    await this.send(bytes);
+    await this.send(bytes, { withPing: false });
   };
 
   protected sendEnd = async (): Promise<void> => {
@@ -110,24 +111,7 @@ export class IciclesPort {
     const bytes = new Uint8Array(messageTypeSize);
     bytes[0] = SerialMessageTypes.end;
 
-    await this.send(bytes);
-  };
-
-  /**
-   * Clears ping if ping is scheduled
-   */
-  private _clearScheduledPing = (): void => {
-    if (this._pingTimeout !== undefined) {
-      clearTimeout(this._pingTimeout);
-      this._pingTimeout = undefined;
-    }
-  };
-
-  /**
-   * Clear current scheduled ping request and schedule new one.
-   */
-  private _schedulePing = (delay: number = 10_000): void => {
-    this._pingTimeout = setTimeout(this.sendPing, delay);
+    await this.send(bytes, { withPing: false });
   };
 
   private _clearPingTimer = (): void => {
