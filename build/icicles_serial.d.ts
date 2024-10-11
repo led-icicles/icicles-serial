@@ -13,10 +13,12 @@ export declare class IciclesPort {
     protected _onData: (chunk: any) => void;
     private _messagesToSend;
     get isSending(): boolean;
-    send: (bytes: Uint8Array) => Promise<void>;
-    private _pingTimeout?;
+    send: (bytes: Uint8Array, { withPing }?: {
+        withPing?: boolean | undefined;
+    }) => Promise<void>;
     private _pingInterval?;
     get pingsEnabled(): boolean;
+    /** Send ping every 10 second */
     private _pingEvery;
     /**
      * This method is also used internally to skip ping requests when there is no needed for them.
@@ -29,14 +31,6 @@ export declare class IciclesPort {
     stop: () => Promise<void>;
     protected sendPing: () => Promise<void>;
     protected sendEnd: () => Promise<void>;
-    /**
-     * Clears ping if ping is scheduled
-     */
-    private _clearScheduledPing;
-    /**
-     * Clear current scheduled ping request and schedule new one.
-     */
-    private _schedulePing;
     private _clearPingTimer;
     display: (view: AnimationView) => Promise<void>;
 }

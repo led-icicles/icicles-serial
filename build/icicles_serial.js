@@ -24,10 +24,12 @@ class IciclesPort {
             (_a = this.onData) === null || _a === void 0 ? void 0 : _a.call(this, chunk);
         };
         this._messagesToSend = 0;
-        this.send = (bytes) => __awaiter(this, void 0, void 0, function* () {
+        this.send = (bytes, { withPing = true } = {}) => __awaiter(this, void 0, void 0, function* () {
             this._messagesToSend++;
             // skip pings for [this._pingEvery] duration
-            this._reschedulePings(this._pingEvery);
+            if (withPing) {
+                this._reschedulePings(this._pingEvery);
+            }
             const buffer = Buffer.from(bytes.buffer);
             yield new Promise((res, rej) => {
                 this.port.write(buffer, (err, bytesWritten) => {
@@ -41,6 +43,7 @@ class IciclesPort {
                 });
             });
         });
+        /** Send ping every 10 second */
         this._pingEvery = 10000;
         /**
          * This method is also used internally to skip ping requests when there is no needed for them.
@@ -54,11 +57,10 @@ class IciclesPort {
         });
         this._reschedulePings = (pingEvery) => {
             this._clearPings();
-            this._pingInterval = setInterval(() => this._schedulePing(pingEvery), pingEvery);
+            this._pingInterval = setInterval(() => this.sendPing(), pingEvery);
         };
         this._clearPings = () => {
             this._clearPingTimer();
-            this._clearScheduledPing();
         };
         this.stop = () => __awaiter(this, void 0, void 0, function* () {
             this._clearPings();
@@ -69,29 +71,14 @@ class IciclesPort {
             const messageTypeSize = utils_1.UINT_8_SIZE_IN_BYTES;
             const bytes = new Uint8Array(messageTypeSize);
             bytes[0] = serial_message_types_1.SerialMessageTypes.ping;
-            yield this.send(bytes);
+            yield this.send(bytes, { withPing: false });
         });
         this.sendEnd = () => __awaiter(this, void 0, void 0, function* () {
             const messageTypeSize = utils_1.UINT_8_SIZE_IN_BYTES;
             const bytes = new Uint8Array(messageTypeSize);
             bytes[0] = serial_message_types_1.SerialMessageTypes.end;
-            yield this.send(bytes);
+            yield this.send(bytes, { withPing: false });
         });
-        /**
-         * Clears ping if ping is scheduled
-         */
-        this._clearScheduledPing = () => {
-            if (this._pingTimeout !== undefined) {
-                clearTimeout(this._pingTimeout);
-                this._pingTimeout = undefined;
-            }
-        };
-        /**
-         * Clear current scheduled ping request and schedule new one.
-         */
-        this._schedulePing = (delay = 10000) => {
-            this._pingTimeout = setTimeout(this.sendPing, delay);
-        };
         this._clearPingTimer = () => {
             if (this._pingInterval) {
                 clearInterval(this._pingInterval);
@@ -117,7 +104,7 @@ class IciclesPort {
         return this._messagesToSend !== 0;
     }
     get pingsEnabled() {
-        return this._pingInterval !== undefined || this._pingTimeout !== undefined;
+        return this._pingInterval !== undefined;
     }
 }
 exports.IciclesPort = IciclesPort;
